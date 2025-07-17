@@ -3,7 +3,7 @@
 # output: csv files in step 2 for JASP & for trial-by-trial analysis
 
 # Author: Raude Killian
-# date: 16.07.2025
+# date: 17.07.2025
 # Description: Organize participant data into format suitable for JASP
 
 library(tidyverse)
@@ -75,6 +75,8 @@ for (subID in participants$subID) {
   # Step 2: Summary statistics for JASP
   
   rejected_trials_count <- sum(merged_data$trialtype == "too-long")
+  rejected_trials_count_congruent <- sum(merged_data$trialtype == "too-long" & merged_data$Congruency_recall == "congruent")
+  rejected_trials_count_incongruent <- sum(merged_data$trialtype == "too-long" & merged_data$Congruency_recall == "incongruent")
   
   merged_data <- merged_data[merged_data$trialtype != "too-long", ]
   file_encod <- file_encod[file_encod$choice_rt < 3 , ]
@@ -90,6 +92,9 @@ for (subID in participants$subID) {
     rating_for_left_right = file_rating$rating_forleftright[1],
     
     rejected_trials_count = rejected_trials_count,
+    rejected_trials_count_congruent = rejected_trials_count_congruent,
+    rejected_trials_count_incongruent = rejected_trials_count_incongruent,
+    
     unknown_count = sum(merged_data$answer == "oldunknow"),
     
     # choice_rt in encoding session
@@ -155,6 +160,9 @@ for (subID in participants$subID) {
     right_location_proportion = (sum(file_encod$Actual_Location == "right") / length(file_encod$Actual_Location)),
     left_proportion_proportion = (sum(file_encod$Actual_Location == "left") / length(file_encod$Actual_Location)),
     
+    left_choice_proportion_congruent = (sum(file_encod$choice == "right" | file_encod$choice == "8" & merged_data$Congruency_recall == "congruent") / sum(merged_data$Congruency_recall == "congruent")),
+    left_choice_proportion_incongruent = (sum(file_encod$choice == "right" | file_encod$choice == "8" & merged_data$Congruency_recall == "incongruent") / sum(merged_data$Congruency_recall == "incongruent")),
+    
     # accuracy, hit, miss, fa, cr
     new_correctold_count_CR = sum(file_recall$Type == "new" & file_recall$answer == "new"),
     new_incorrectold_count_FA = sum(file_recall$Type == "new" & file_recall$answer != "new"),
@@ -171,6 +179,8 @@ for (subID in participants$subID) {
     incorrectold_congruent_rate = sum(merged_data$answer == "new" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$Congruency_recall == "congruent"),
     incorrectold_incongruent_rate = sum(merged_data$answer == "new" & merged_data$Type == "old" & merged_data$Congruency_recall == "incongruent") / sum(merged_data$Congruency_recall == "incongruent"),
     
+    #correctold_correctloc_congruent_rate = sum(merged_data$trialtype == "correctold-correctlocation" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$Congruency_recall == "congruent"),
+    #correctold_incorrectloc_congruent_rate = sum(merged_data$trialtype == "correctold-incorrectlocation" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$Congruency_recall == "congruent"),
     correctold_correctloc_congruent_rate = sum(merged_data$trialtype == "correctold-correctlocation" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$answer != "new" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent"),
     correctold_incorrectloc_congruent_rate = sum(merged_data$trialtype == "correctold-incorrectlocation" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$answer != "new" & merged_data$Type == "old" & merged_data$Congruency_recall == "incongruent"),
     correctold_unknownloc_congruent_rate = sum(merged_data$answer == "oldunknow" & merged_data$Type == "old" & merged_data$Congruency_recall == "congruent") / sum(merged_data$Congruency_recall == "congruent"),
